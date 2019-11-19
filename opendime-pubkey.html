@@ -1,0 +1,31 @@
+<html>
+    <head>
+        <meta charset='utf-8' />
+        <title>Opendime Public Key Calculator</title>
+    </head>
+    <body>
+        <h1>Opendime Public Key Calculator</h1>
+        <p>Calculate the publick key of your Opendime without revealing its private key!</p>
+        <p>Navigate to your Opendime and find the file advanced/verify2.txt inside. Paste contents below.</p>
+
+        <form name='openDimeText'>
+            <textarea name='verifyText' cols='120' rows='3' placeholder='Copy and paste the contents of {your opendime}/advanced/verify2.txt'></textarea>
+            <input type='button' value='Calculate Public Key' id='submitText'>
+        </form>
+
+        <h3>Your Opendime's public key is: <span id='pubkey'></span></h3>
+        <button id='copyPubKey'>Copy to clipboard</button>
+        <p>Now you can use your favorite wallet or <a href='https://coinb.in' target='_blank'>coinb.in</a> to create a multisig address!</p>
+
+        <p>How it works: Bitcoin Signed Messages enable verification by allowing anyone with the message and signature to calculate the public key corresponding to the private key that signed the message.</p>
+
+        <p>Use at own risk.</p>
+        
+        <script type='text/javascript' src='opendime-pubkey.js'></script>
+
+    </body>
+    <footer>
+        Developed by <a href='https://trustless-services.com/' target='_blank'>Trustless Services K.K.</a>, 2019.
+        <a href='https://github.com/katokishin/opendime-pubkey' target='_blank'>GitHub</a>. MIT License.
+    </footer>
+</html>

@@ -1,0 +1,9 @@
+# Ignore node_modules/
+# You should instead run `npm install` upon cloning the repo!
+node_modules/
+
+# Ignore opendime-pubkey.js
+# Contents could potentially be old; run the following to
+# generate an up-to-date opendime-pubkey.js after every app.js update:
+# `browserify app.js -o opendime-pubkey.js`
+opendime-pubkey.js
