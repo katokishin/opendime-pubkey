@@ -8,10 +8,10 @@ const varuint = require('varuint-bitcoin')
 /*  The code for this project was hacked together based on bitcoinjs-message.
  *  Many thanks to the contributors to https://github.com/bitcoinjs/bitcoinjs-message
  *  This code inherits the MIT License from the above repository.
- *  
+ *
  *  Although parts of this code support Segwit, Opendimes at the time of development
  *  (November 2019) only support having one classic P2PKH address (starting with 1~).
- * 
+ *
  *  Use Browserify.js to include dependencies for browser use.
  */
 
@@ -20,21 +20,17 @@ const SEGWIT_TYPES = {
   P2SH_P2WPKH: 'p2sh(p2wpkh)'
 }
 
-function sha256 (b) {
-  return createHash('sha256')
-    .update(b)
-    .digest()
-}
-function hash256 (buffer) {
-  return sha256(sha256(buffer))
-}
-function hash160 (buffer) {
-  return createHash('ripemd160')
-    .update(sha256(buffer))
-    .digest()
-}
+const sha256 = (b) => createHash('sha256')
+  .update(b)
+  .digest()
 
-function decodeSignature (buffer) {
+const hash256 = (buffer) => sha256(sha256(buffer))
+
+const hash160 = (buffer) => createHash('ripemd160')
+  .update(sha256(buffer))
+  .digest()
+
+const decodeSignature = (buffer) => {
   if (buffer.length !== 65) throw new Error('Invalid signature length')
 
   const flagByte = buffer.readUInt8(0) - 27
@@ -54,7 +50,7 @@ function decodeSignature (buffer) {
   }
 }
 
-function magicHash (message, messagePrefix) {
+const magicHash = (message, messagePrefix) => {
   messagePrefix = messagePrefix || '\u0018Bitcoin Signed Message:\n'
   if (!Buffer.isBuffer(messagePrefix)) {
     messagePrefix = Buffer.from(messagePrefix, 'utf8')
@@ -70,7 +66,7 @@ function magicHash (message, messagePrefix) {
   return hash256(buffer)
 }
 
-function verify (message, address, signature, messagePrefix) {
+const verify = (message, address, signature, messagePrefix) => {
   if (!Buffer.isBuffer(signature)) signature = Buffer.from(signature, 'base64')
 
   const parsed = decodeSignature(signature)
@@ -82,7 +78,8 @@ function verify (message, address, signature, messagePrefix) {
     parsed.compressed
   )
   const publicKeyHash = hash160(publicKey)
-  let actual, expected
+  let actual
+  let expected
 
   if (parsed.segwitType) {
     if (parsed.segwitType === SEGWIT_TYPES.P2SH_P2WPKH) {
@@ -107,43 +104,40 @@ function verify (message, address, signature, messagePrefix) {
   return bufferEquals(actual, expected)
 }
 
+const printRecoveredPubKey = (message, signature) => {
+  if (!Buffer.isBuffer(signature)) signature = Buffer.from(signature, 'base64')
 
-function printRecoveredPubKey (message, signature) {
-    if (!Buffer.isBuffer(signature)) signature = Buffer.from(signature, 'base64')
-
-    const parsed = decodeSignature(signature)
-    const hash = magicHash(message)
-    const publicKey = secp256k1.recover(
-        hash,
-        parsed.signature,
-        parsed.recovery,
-        parsed.compressed
-    )
-    return publicKey.toString('hex');
+  const parsed = decodeSignature(signature)
+  const hash = magicHash(message)
+  const publicKey = secp256k1.recover(
+    hash,
+    parsed.signature,
+    parsed.recovery,
+    parsed.compressed
+  )
+  return publicKey.toString('hex')
 }
 
-function getPubKey() {
-  document.getElementById('pubkey').textContent = '';
-  const verifyTextContents = document.openDimeText.verifyText.value.split('\n');
-  if (verify(verifyTextContents[0],verifyTextContents[1],verifyTextContents[2])) {
+const getPubKey = () => {
+  document.getElementById('pubkey').textContent = ''
+  const verifyTextContents = document.openDimeText.verifyText.value.split('\n')
+  if (verify(verifyTextContents[0], verifyTextContents[1], verifyTextContents[2])) {
     document.getElementById('pubkey').textContent = printRecoveredPubKey(
       verifyTextContents[0],
       verifyTextContents[2]
-    );
+    )
   }
-  return;
 }
 
-function copyPubKey() {
-  let copyTarget = document.getElementById('pubkey');
-  let range = document.createRange();
-  range.selectNode(copyTarget);
-  window.getSelection().removeAllRanges();
-  window.getSelection().addRange(range);
-  document.execCommand('copy');
-  alert("Copied pubkey to clipboard: " + copyTarget.textContent);
-  return;
+const copyPubKey = () => {
+  const copyTarget = document.getElementById('pubkey')
+  const range = document.createRange()
+  range.selectNode(copyTarget)
+  window.getSelection().removeAllRanges()
+  window.getSelection().addRange(range)
+  document.execCommand('copy')
+  alert('Copied pubkey to clipboard: ' + copyTarget.textContent)
 }
 
-document.getElementById('submitText').addEventListener('click', getPubKey, false);
-document.getElementById('copyPubKey').addEventListener('click', copyPubKey, false);
+document.getElementById('submitText').addEventListener('click', getPubKey, false)
+document.getElementById('copyPubKey').addEventListener('click', copyPubKey, false)
